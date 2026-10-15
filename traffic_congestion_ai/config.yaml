@@ -1,0 +1,98 @@
+# ============================================================
+#  Explainable AI Traffic Congestion Prediction - Config
+# ============================================================
+
+# ── Paths ────────────────────────────────────────────────────
+paths:
+  raw_video_dir:       "data/raw"
+  processed_dir:       "data/processed"
+  augmented_dir:       "data/augmented"
+  model_save_dir:      "models"
+  output_vis_dir:      "outputs/visualizations"
+  heatmap_dir:         "outputs/heatmaps"
+  report_dir:          "outputs/reports"
+  model_checkpoint:    "models/cnn_lstm_best.h5"
+
+# ── Video Preprocessing ──────────────────────────────────────
+preprocessing:
+  frame_height:         224          # resize height (px)
+  frame_width:          224          # resize width (px)
+  sequence_length:      16           # number of frames per sample
+  frame_skip:           2            # sample every N frames (reduce redundancy)
+  background_subtraction: true       # use MOG2 background subtraction
+  normalize:            true         # scale pixels to [0, 1]
+  num_channels:         3            # RGB
+
+# ── Dataset Split ────────────────────────────────────────────
+dataset:
+  train_ratio:          0.70
+  val_ratio:            0.15
+  test_ratio:           0.15
+  random_seed:          42
+  classes:              ["low", "medium", "high"]   # congestion levels
+  class_to_idx:         {"low": 0, "medium": 1, "high": 2}
+
+# ── Augmentation ─────────────────────────────────────────────
+augmentation:
+  enabled:              true
+  horizontal_flip:      true
+  brightness_range:     [0.8, 1.2]
+  contrast_range:       [0.8, 1.2]
+  rotation_degrees:     10
+  zoom_range:           0.1
+  noise_std:            0.02
+
+# ── Model Architecture ───────────────────────────────────────
+model:
+  cnn_backbone:         "mobilenetv2"   # mobilenetv2 | resnet50 | efficientnetb0
+  cnn_trainable:        false           # freeze CNN backbone weights
+  cnn_feature_dim:      1280
+  lstm_units:           [256, 128]      # stacked LSTM layer sizes
+  lstm_dropout:         0.3
+  lstm_recurrent_dropout: 0.2
+  dense_units:          [128, 64]
+  dense_dropout:        0.4
+  num_classes:          3
+  activation:           "softmax"
+
+# ── Training ─────────────────────────────────────────────────
+training:
+  epochs:               30
+  batch_size:           8
+  learning_rate:        0.001
+  lr_scheduler:         "cosine"        # cosine | step | plateau
+  optimizer:            "adam"
+  loss:                 "categorical_crossentropy"
+  early_stopping_patience: 7
+  reduce_lr_patience:   4
+  reduce_lr_factor:     0.5
+  class_weights:        true            # auto-compute to handle imbalance
+  mixed_precision:      false           # enable for GPU speedup
+
+# ── Explainability ───────────────────────────────────────────
+explainability:
+  gradcam:
+    enabled:            true
+    target_layer:       "block_16_project_BN"   # MobileNetV2 last conv layer
+    colormap:           "jet"
+    alpha:              0.4                      # heatmap blend alpha
+  shap:
+    enabled:            true
+    num_background:     50                       # background samples for KernelSHAP
+    num_explain:        10
+  lime:
+    enabled:            true
+    num_samples:        1000
+    num_segments:       50
+    num_features:       10
+
+# ── Dashboard ────────────────────────────────────────────────
+dashboard:
+  host:                 "0.0.0.0"
+  port:                 8501
+  refresh_interval_ms:  500
+
+# ── Logging ──────────────────────────────────────────────────
+logging:
+  level:                "INFO"
+  log_file:             "outputs/reports/training.log"
