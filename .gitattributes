@@ -3,4 +3,3 @@
 *.tfevents.* filter=lfs diff=lfs merge=lfs -text
 *.mp4 filter=lfs diff=lfs merge=lfs -text
 *.avi filter=lfs diff=lfs merge=lfs -text
-/data/previews/*.mp4 -filter -diff -merge -text
