@@ -63,6 +63,8 @@ Name them with their congestion label suffix for auto-labeling:
 - `intersection_medium_003.mp4` → label: **medium**
 - `city_center_high_002.mp4`  → label: **high**
 
+Small browser-friendly previews are available in [`data/previews/`](data/previews/). The original full-resolution videos remain in `data/raw/` and are stored with Git LFS.
+
 ### 3. Run the full pipeline
 ```bash
 python run_pipeline.py --video_dir data/raw/ --epochs 30 --batch_size 8
